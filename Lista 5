@@ -81,3 +81,113 @@ if __name__ == '__main__':
     print_maze(maze)
 
 #Questão 4
+
+class Vertex:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+        self.edges = []
+
+class Graph:
+    def __init__(self, adjlist):
+        self.adjlist = {key: Vertex(key, None) for key in adjlist}
+        for key, edges in adjlist.items():
+            self.adjlist[key].edges = edges
+        self.vertexset = self.build_vertex_set()
+
+    def build_vertex_set(self):
+        vertexset = set(self.adjlist.keys())
+        for vertex in self.adjlist.values():
+            vertexset.update(vertex.edges)
+        return vertexset
+
+    def neighbors(self, x):
+        return self.adjlist[x].edges
+
+    def adjacent(self, x, y):
+        return y in self.adjlist[x].edges
+
+    def add_vertex(self, name, value):
+        if name in self.adjlist:
+            return False
+        self.adjlist[name] = Vertex(name, value)
+        return True
+
+    def remove_vertex(self, name):
+        if name not in self.adjlist:
+            return False
+        for vertex in self.adjlist.values():
+            if name in vertex.edges:
+                vertex.edges.remove(name)
+        del self.adjlist[name]
+        return True
+
+    def add_edge(self, x, y):
+        if y in self.adjlist[x].edges:
+            return False
+        self.adjlist[x].edges.append(y)
+        return True
+
+    def remove_edge(self, x, y):
+        if y not in self.adjlist[x].edges:
+            return False
+        self.adjlist[x].edges.remove(y)
+        return True
+
+    def get_vertex_value(self, name):
+        if name in self.adjlist:
+            return self.adjlist[name].value
+        return None
+
+    def set_vertex_value(self, name, value):
+        if name in self.adjlist:
+            self.adjlist[name].value = value
+            return True
+        return False
+
+    def get_vertex_name(self, name):
+        if name in self.adjlist:
+            return self.adjlist[name].name
+        return None
+
+
+if __name__ == "__main__":
+    adjlist = {
+        "A": ["B", "C"],
+        "B": ["A", "D"],
+        "C": ["A"],
+        "D": ["B"]
+    }
+
+    graph = Graph(adjlist)
+
+    graph.set_vertex_value("A", "Value A")
+    graph.set_vertex_value("B", "Value B")
+    graph.set_vertex_value("C", "Value C")
+    graph.set_vertex_value("D", "Value D")
+
+    print(graph.vertexset)
+
+    print(graph.neighbors("A"))
+
+    print(graph.adjacent("A", "D"))
+    print(graph.adjacent("A", "B"))
+
+    print(graph.add_vertex("E", "value E"))
+    print(graph.add_vertex("A", "new value A"))
+
+    print(graph.remove_vertex("C"))
+    print(graph.remove_vertex("C"))
+
+    print(graph.add_edge("A", "D"))
+    print(graph.add_edge("A", "B"))
+
+    print(graph.remove_edge("A", "B"))
+    print(graph.remove_edge("A", "B"))
+
+    print(graph.get_vertex_value("A"))
+    graph.set_vertex_value("A", "new value A")
+    print(graph.get_vertex_value("A"))
+
+    for vertex, vertex_obj in graph.adjlist.items():
+        print(f"Vértice {vertex}: valor = {vertex_obj.value}, arestas = {vertex_obj.edges}")
