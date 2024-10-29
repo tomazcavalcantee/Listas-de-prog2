@@ -1,11 +1,14 @@
 class Vertex:
-    def __init__(self, value, edges=None):
+    def __init__(self, name, value):
+        self.name = name
         self.value = value
-        self.edges = edges if edges is not None else []
+        self.edges = []
 
 class Graph:
     def __init__(self, adjlist):
-        self.adjlist = {key: Vertex(key, edges) for key, edges in adjlist.items()}
+        self.adjlist = {key: Vertex(key, None) for key in adjlist}
+        for key, edges in adjlist.items():
+            self.adjlist[key].edges = edges
         self.vertexset = self.build_vertex_set()
 
     def build_vertex_set(self):
@@ -20,19 +23,19 @@ class Graph:
     def adjacent(self, x, y):
         return y in self.adjlist[x].edges
 
-    def add_vertex(self, x):
-        if x in self.adjlist:
+    def add_vertex(self, name, value):
+        if name in self.adjlist:
             return False
-        self.adjlist[x] = Vertex(x)
+        self.adjlist[name] = Vertex(name, value)
         return True
 
-    def remove_vertex(self, x):
-        if x not in self.adjlist:
+    def remove_vertex(self, name):
+        if name not in self.adjlist:
             return False
         for vertex in self.adjlist.values():
-            if x in vertex.edges:
-                vertex.edges.remove(x)
-        del self.adjlist[x]
+            if name in vertex.edges:
+                vertex.edges.remove(name)
+        del self.adjlist[name]
         return True
 
     def add_edge(self, x, y):
@@ -47,68 +50,60 @@ class Graph:
         self.adjlist[x].edges.remove(y)
         return True
 
-    def get_vertex_value(self, x):
-        if x in self.adjlist:
-            return self.adjlist[x].value
+    def get_vertex_value(self, name):
+        if name in self.adjlist:
+            return self.adjlist[name].value
         return None
 
-    def set_vertex_value(self, x, v):
-        if x in self.adjlist:
-            self.adjlist[x].value = v
+    def set_vertex_value(self, name, value):
+        if name in self.adjlist:
+            self.adjlist[name].value = value
             return True
         return False
 
-# Exemplo de uso
-adjlist = {
-    'A': ['B', 'C'],
-    'B': ['A', 'D'],
-    'C': ['A'],
-    'D': ['B']
-}
+    def get_vertex_name(self, name):
+        if name in self.adjlist:
+            return self.adjlist[name].name
+        return None
+
+
 if __name__ == "__main__":
-    # Definindo a estrutura inicial do grafo
     adjlist = {
-        'A': ['B', 'C'],
-        'B': ['A', 'D'],
-        'C': ['A'],
-        'D': ['B']
+        "A": ["B", "C"],
+        "B": ["A", "D"],
+        "C": ["A"],
+        "D": ["B"]
     }
 
-    # Criando o grafo
     graph = Graph(adjlist)
 
-    # Testando o método build_vertex_set
-    print("Conjunto de vértices:", graph.vertexset)  # Saída esperada: {'A', 'B', 'C', 'D'}
+    graph.set_vertex_value("A", "Value A")
+    graph.set_vertex_value("B", "Value B")
+    graph.set_vertex_value("C", "Value C")
+    graph.set_vertex_value("D", "Value D")
 
-    # Testando o método neighbors
-    print("Vizinhos de A:", graph.neighbors('A'))  # Saída esperada: ['B', 'C']
+    print(graph.vertexset)
 
-    # Testando o método adjacent
-    print("A é adjacente a D?", graph.adjacent('A', 'D'))  # Saída esperada: False
-    print("A é adjacente a B?", graph.adjacent('A', 'B'))  # Saída esperada: True
+    print(graph.neighbors("A"))
 
-    # Testando o método add_vertex
-    print("Adicionando vértice E:", graph.add_vertex('E'))  # Saída esperada: True
-    print("Adicionando vértice A novamente:", graph.add_vertex('A'))  # Saída esperada: False
+    print(graph.adjacent("A", "D"))
+    print(graph.adjacent("A", "B"))
 
-    # Testando o método remove_vertex
-    print("Removendo vértice C:", graph.remove_vertex('C'))  # Saída esperada: True
-    print("Removendo vértice C novamente:", graph.remove_vertex('C'))  # Saída esperada: False
+    print(graph.add_vertex("E", "value E"))
+    print(graph.add_vertex("A", "new value A"))
 
-    # Testando o método add_edge
-    print("Adicionando aresta entre A e D:", graph.add_edge('A', 'D'))  # Saída esperada: True
-    print("Adicionando aresta entre A e B novamente:", graph.add_edge('A', 'B'))  # Saída esperada: False
+    print(graph.remove_vertex("C"))
+    print(graph.remove_vertex("C"))
 
-    # Testando o método remove_edge
-    print("Removendo aresta entre A e B:", graph.remove_edge('A', 'B'))  # Saída esperada: True
-    print("Removendo aresta entre A e B novamente:", graph.remove_edge('A', 'B'))  # Saída esperada: False
+    print(graph.add_edge("A", "D"))
+    print(graph.add_edge("A", "B"))
 
-    # Testando métodos de valor de vértice
-    print("Valor do vértice A:", graph.get_vertex_value('A'))  # Saída esperada: 'A'
-    graph.set_vertex_value('A', 'Novo Valor A')
-    print("Novo valor do vértice A:", graph.get_vertex_value('A'))  # Saída esperada: 'Novo Valor A'
+    print(graph.remove_edge("A", "B"))
+    print(graph.remove_edge("A", "B"))
 
-    # Verificando o estado final do grafo
-    print("Estado final do grafo:")
+    print(graph.get_vertex_value("A"))
+    graph.set_vertex_value("A", "new value A")
+    print(graph.get_vertex_value("A"))
+
     for vertex, vertex_obj in graph.adjlist.items():
         print(f"Vértice {vertex}: valor = {vertex_obj.value}, arestas = {vertex_obj.edges}")
