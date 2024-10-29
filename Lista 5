@@ -1,1 +1,83 @@
+#Questão 1
+"""
+Falta a questão 1
+"""
 
+
+#Questão 2
+import random
+
+def generate_maze(m, n, room=' ', wall='H', cheese='C'):
+    maze = [[wall] * (2 * n + 1) for _ in range(2 * m + 1)]
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    def dfs(x, y):
+        stack = [[x, y]]
+        while stack:
+            current_x, current_y = stack[-1]
+            maze[2 * current_x + 1][2 * current_y + 1] = room
+            random.shuffle(directions)
+            found = False
+            
+            for dx, dy in directions:
+                nx, ny = current_x + dx, current_y + dy
+                if 0 <= nx < m and 0 <= ny < n and maze[2 * nx + 1][2 * ny + 1] == wall:
+                    maze[2 * current_x + 1 + dx][2 * current_y + 1 + dy] = room
+                    stack.append([nx, ny])
+                    found = True
+                    break
+            
+            if not found:
+                stack.pop()
+
+    dfs(0, 0)
+
+    while True: 
+        i = random.randint(0, m - 1) * 2 + 1
+        j = random.randint(0, n - 1) * 2 + 1
+        if maze[i][j] == room:
+            maze[i][j] = cheese 
+            break
+
+    return maze
+
+def print_maze(maze):
+    for row in maze:
+        print(" ".join(map(str, row)))
+
+if __name__ == '__main__':
+    m, n = 5, 7
+    maze = generate_maze(m, n)
+
+#Questão 3
+#import random (já foi importado anteriormente)
+def find_cheese(m, n, maze, room=' ', cheese='C'):
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    path = []
+
+    def dfs(x, y):
+        if maze[x][y] == cheese:
+            return True
+
+        maze[x][y] = '+'
+        path.append((x, y))
+
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < len(maze) and 0 <= ny < len(maze[0]) and maze[nx][ny] in (room, cheese):
+                if dfs(nx, ny):
+                    return True
+
+        path.pop()
+        maze[x][y] = room
+        return False
+
+    if dfs(1, 1):
+        return path
+if __name__ == '__main__':
+    path = find_cheese(m, n, maze)
+    for x, y in path:
+        maze[x][y] = '+'
+    print_maze(maze)
+
+#Questão 4
