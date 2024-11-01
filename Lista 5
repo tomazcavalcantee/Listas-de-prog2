@@ -1,7 +1,9 @@
 #Questão 1
 """
-Falta a questão 1
-"""
+Dado um ponto, a função acha o vizinho mais próximo dentro 
+uma nuvem de outros pontos sobre alguma distribuição.
+Suas operações de subtração, cálculo de norma e achar o mínimo 
+dentre as distâncias são todas O(N). Logo, o algoritmo é O(N)."""
 
 
 #Questão 2
