@@ -1,0 +1,198 @@
+from collections import deque
+class Vertex:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+        self.edges = []
+
+class Graph:
+    def __init__(self, adjlist):
+        self.adjlist = {key: Vertex(key, None) for key in adjlist}
+        for key, edges in adjlist.items():
+            self.adjlist[key].edges = edges
+        self.vertexset = self.build_vertex_set()
+
+    def build_vertex_set(self):
+        vertexset = set(self.adjlist.keys())
+        for vertex in self.adjlist.values():
+            vertexset.update(vertex.edges)
+        return vertexset
+
+    def neighbors(self, x):
+        return self.adjlist[x].edges
+
+    def adjacent(self, x, y):
+        return y in self.adjlist[x].edges
+
+    def add_vertex(self, name, value):
+        if name in self.adjlist:
+            return False
+        self.adjlist[name] = Vertex(name, value)
+        return True
+
+    def remove_vertex(self, name):
+        if name not in self.adjlist:
+            return False
+        for vertex in self.adjlist.values():
+            if name in vertex.edges:
+                vertex.edges.remove(name)
+        del self.adjlist[name]
+        return True
+
+    def add_edge(self, x, y):
+        if y in self.adjlist[x].edges:
+            return False
+        self.adjlist[x].edges.append(y)
+        return True
+
+    def remove_edge(self, x, y):
+        if y not in self.adjlist[x].edges:
+            return False
+        self.adjlist[x].edges.remove(y)
+        return True
+
+    def get_vertex_value(self, name):
+        if name in self.adjlist:
+            return self.adjlist[name].value
+        return None
+
+    def set_vertex_value(self, name, value):
+        if name in self.adjlist:
+            self.adjlist[name].value = value
+            return True
+        return False
+
+    def get_vertex_name(self, name):
+        if name in self.adjlist:
+            return self.adjlist[name].name
+        return None
+
+    
+def bfs_search(graph, start_vertex):
+    if start_vertex not in graph.adjlist:
+        return []
+    
+    visited = set()
+    queue = deque([start_vertex])
+    search_order = []
+
+    while queue:
+        vertex = queue.popleft()
+        if vertex not in visited:
+            visited.add(vertex)
+            search_order.append(vertex)
+            for neighbor in graph.neighbors(vertex):
+                if neighbor not in visited:
+                    queue.append(neighbor)
+    
+    return search_order
+if __name__ == "__main__":
+    adjlist = {
+        "A": ["B", "C"],
+        "B": ["A", "D"],
+        "C": ["A"],
+        "D": ["B"]
+    }
+
+    graph = Graph(adjlist)
+    result = bfs_search(graph, "B")
+    print(result) 
+
+
+from collections import deque
+
+
+def neighbors(matrix, m, n):
+    directions = [
+        (m-1, n), (m-1, n+1), (m, n+1), (m+1, n+1),
+        (m+1, n), (m+1, n-1), (m, n-1), (m-1, n-1)
+    ]
+    valid_directions = []
+    for r, c in directions:
+        if 0 <= r < len(matrix) and 0 <= c < len(matrix[0]):
+            valid_directions.append((r, c))
+    return valid_directions
+
+
+def island_counter(matrix):
+    visited = set()
+    islands_number = 0
+    rows, cols = len(matrix), len(matrix[0])
+
+    for row in range(rows):
+        for col in range(cols):
+            if (row, col) not in visited and matrix[row][col] == '1':
+                queue = deque([(row, col)])
+                while queue:
+                    r, c = queue.popleft()
+                    if (r, c) not in visited:
+                        visited.add((r, c))
+                        for nr, nc in neighbors(matrix, r, c):
+                            if matrix[nr][nc] == '1' and (nr, nc) not in visited:
+                                queue.append((nr, nc))
+                islands_number += 1
+            else:
+                visited.add((row, col))
+    return islands_number
+
+
+def island_centroid(matrix):
+    visited = set()
+    islands_list = []
+    rows, cols = len(matrix), len(matrix[0])
+
+    for row in range(rows):
+        for col in range(cols):
+            if (row, col) not in visited and matrix[row][col] == '1':
+                queue = deque([(row, col)])
+                current_island = []
+                while queue:
+                    r, c = queue.popleft()
+                    if (r, c) not in visited:
+                        visited.add((r, c))
+                        current_island.append((r, c))
+                        for nr, nc in neighbors(matrix, r, c):
+                            if matrix[nr][nc] == '1' and (nr, nc) not in visited:
+                                queue.append((nr, nc))
+                if current_island:
+                    islands_list.append(current_island)
+            else:
+                visited.add((row, col))
+    largest_isl = islands_list[0]
+    shortest_isl = islands_list[0]
+    for isl in islands_list:
+        if len(isl) > len(largest_isl):
+            largest_isl = isl
+        if len(isl) < len(shortest_isl):
+            shortest_isl = isl
+    return calculate_centroid(largest_isl), calculate_centroid(shortest_isl)
+
+
+def calculate_centroid(island):
+    x_sum = sum(cell[0] for cell in island)
+    y_sum = sum(cell[1] for cell in island)
+    count = len(island)
+    return (x_sum // count + 1, y_sum // count)
+
+
+def has_lake(matrix):
+    rows, cols = len(matrix), len(matrix[0])
+    for r in range(1, rows-1):
+        for c in range(1, cols-1):
+            if matrix[r][c] == '0':
+                if matrix[r-1][c] == '1' and matrix[r+1][c] == '1' and matrix[r][c-1] == '1' and matrix[r][c+1] == '1':
+                    return True
+    return False
+
+
+matrix = [
+    ['1', '1', '0', '0', '0'],
+    ['0', '1', '0', '0', '1'],
+    ['1', '0', '0', '1', '1'],
+    ['0', '0', '0', '0', '0'],
+    ['1', '0', '1', '1', '0']
+]
+
+print(island_counter(matrix))
+print(island_centroid(matrix))
+print(has_lake(matrix))
